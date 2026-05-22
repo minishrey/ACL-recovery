@@ -1,0 +1,1840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACL Recovery — Shreyas</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.30.0/dist/tabler-icons.min.css">
+<style>
+  :root { --bg: #17171A; --font: system-ui,-apple-system,'Segoe UI',Helvetica,sans-serif; }
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin:0; padding:0; background:#17171A; }
+  body { font-family:var(--font); padding:24px 18px 60px; }
+  #root { max-width:760px; margin:0 auto; }
+  a { color:#78B4F0; } a:hover { text-decoration:underline; }
+  p { margin:0; } button { font-family:inherit; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script>
+const {
+  useState,
+  useEffect
+} = React;
+const SK = "acl_v3";
+const DATA = {
+  lastUpdated: "22 May 2026",
+  stats: [{
+    n: "28",
+    l: "days since injury"
+  }, {
+    n: "~56",
+    l: "days to surgery"
+  }, {
+    n: "5–40°",
+    l: "current ROM"
+  }, {
+    n: "2/4",
+    l: "sessions booked"
+  }],
+  stage: {
+    sessionNum: 2,
+    physio: "Oliver Wu",
+    exercises: [{
+      name: "Cycling",
+      schedule: "10 mins · low resistance"
+    }, {
+      name: "Heel slides",
+      schedule: "Mobility · little and often"
+    }, {
+      name: "Static quad + lift",
+      schedule: "Mobility · little and often"
+    }, {
+      name: "Bear crawl stands (L foot)",
+      schedule: "10× mobility"
+    }, {
+      name: "Foam roll squats (L foot back)",
+      schedule: "3×10 daily · 2s hold"
+    }, {
+      name: "Wall heel (HS) holds",
+      schedule: "3×30s daily · 70% max"
+    }, {
+      name: "SL balance eyes-closed",
+      schedule: "3×30s daily"
+    }],
+    focus: ["Regain full extension — push to -5° (hyperextension)", "Regain full flexion — currently 90°, target 130°+", "Single-leg balance and proprioception training", "Cycling 10 mins daily for low-impact conditioning", "No brace needed — gait continuing to improve"],
+    notes: "Oliver (20 May, session 2): Great progress — flexion now 90°. New exercises added: cycling, bear crawl stands, single leg balance. Push extension to -5° and flexion to 130°+ before surgery."
+  },
+  clinical: {
+    diagnosis: "Left knee ACL rupture + lateral meniscal tear",
+    mriDate: "~4 May 2026",
+    consultDate: "13 May 2026",
+    plan: "ACL reconstruction via hamstring tendon graft, keyhole incisions. Meniscus repaired in same operation. Smaller tears expected to heal naturally before surgery.",
+    surgeryTarget: "Late June / mid-July 2026",
+    recovery: "~2 months (daily life) · 4 months (cycling/swimming) · 9 months (tennis) · 12 months (football)",
+    policyRef: "King Edward VII’s Hospital / 961BCK",
+    gp: "The Hoxton Surgery, 6 Rushton Street, London N1 5DR",
+    hospital: "King Edward VII’s Hospital, 5–10 Beaumont Street, London W1G 6AA",
+    consultants: [{
+      name: "Mr Shahid Punwar",
+      initials: "SP",
+      role: "Consultant Orthopaedic Surgeon (Hip & Knee)",
+      org: "LIPS Healthcare · King Edward VII’s Hospital",
+      quals: "BSc(Hons), MBBS, MRCS, MFSEM, FHEA, FRCS(Orth)",
+      email: "punwar.admin@lips.org.uk",
+      phone: "+44 (0)20 8194 8541",
+      url: "https://www.lips.org.uk",
+      ab: "#162336",
+      at: "#7EB8F5"
+    }, {
+      name: "Oliver Wu",
+      initials: "OW",
+      role: "Specialist MSK Physiotherapist",
+      org: "Langley Morgan Physio · UBS 5 Broadgate EC2M 2QS",
+      quals: "B.Sci, D Physiotherapy, DPT",
+      email: "oliver.wu@lm-physio.co.uk",
+      phone: "+44 (0)20 7488 4924 · 07455 722 991",
+      url: "https://lm-physio.co.uk",
+      ab: "#162B22",
+      at: "#34C98A"
+    }]
+  },
+  appointments: [{
+    date: "Wed 20 May",
+    time: "3:30 PM",
+    who: "Oliver Wu",
+    where: "5BG, UBS 5 Broadgate EC2M 2QS, Level 1",
+    status: "today"
+  }, {
+    date: "Wed 27 May",
+    time: "4:00 PM",
+    who: "Oliver Wu",
+    where: "5BG, UBS 5 Broadgate EC2M 2QS, Level 1",
+    status: "upcoming"
+  }, {
+    date: "Fri 29 May",
+    time: "2:30 PM",
+    who: "Oliver Wu",
+    where: "5BG, UBS 5 Broadgate EC2M 2QS, Level 1",
+    status: "upcoming"
+  }, {
+    date: "Mon 1 Jun",
+    time: "3:30 PM",
+    who: "Oliver Wu",
+    where: "5BG, UBS 5 Broadgate EC2M 2QS, Level 1",
+    status: "upcoming"
+  }],
+  rom: {
+    flexion: {
+      label: "Flexion",
+      current: 90,
+      target: 130,
+      start: 0,
+      desc: false
+    },
+    extension: {
+      label: "Extension",
+      current: 10,
+      target: -5,
+      start: 10,
+      desc: true
+    }
+  },
+  goals: [{
+    label: "First physio session",
+    done: true,
+    when: "done"
+  }, {
+    label: "Walk without limp",
+    done: false,
+    when: "~1 week"
+  }, {
+    label: "Gym training (upper body)",
+    done: false,
+    when: "~2 weeks"
+  }, {
+    label: "Regain pre-op strength",
+    done: false,
+    when: "~4 weeks"
+  }, {
+    label: "Full ROM pre-surgery (0–130°+)",
+    done: false,
+    when: "~3–4 wks"
+  }, {
+    label: "Surgery",
+    done: false,
+    when: "~mid Jul"
+  }, {
+    label: "Return to daily activities",
+    done: false,
+    when: "~Sep 26"
+  }, {
+    label: "Cycling / swimming",
+    done: false,
+    when: "~Nov 26"
+  }, {
+    label: "Tennis",
+    done: false,
+    when: "~Apr 27"
+  }, {
+    label: "Football",
+    done: false,
+    when: "~Jul 27"
+  }],
+  links: [{
+    label: "Book physio session",
+    desc: "Langley Morgan · online booking",
+    url: "https://eubook.nookal.com/bookings/book/1CB4dCB1-aE43-76EB-78fa-7b39A698032c/location",
+    icon: "ti-calendar-plus",
+    cat: "booking"
+  }, {
+    label: "Aviva health insurance",
+    desc: "My Portfolio — claims & policy",
+    url: "https://www.direct.aviva.co.uk/MyPortfolio/",
+    icon: "ti-shield-check",
+    cat: "insurance"
+  }, {
+    label: "ACL prehab exercise guide",
+    desc: "Hospital for Special Surgery",
+    url: "https://www.hss.edu/article_acl-reconstruction-exercise-guide.asp",
+    icon: "ti-stretching",
+    cat: "resource"
+  }, {
+    label: "ACL rehab overview",
+    desc: "Physiopedia — full protocol",
+    url: "https://www.physio-pedia.com/Anterior_Cruciate_Ligament_Reconstruction_Rehabilitation",
+    icon: "ti-book",
+    cat: "resource"
+  }, {
+    label: "Quad sets & heel slides",
+    desc: "Early prehab video walkthrough",
+    url: "https://www.youtube.com/results?search_query=quad+sets+heel+slides+ACL+prehab",
+    icon: "ti-player-play",
+    cat: "video"
+  }, {
+    label: "Nutrition for ACL recovery",
+    desc: "Protein & anti-inflammatory guide",
+    url: "https://www.precisionnutrition.com/acl-injury-nutrition",
+    icon: "ti-apple",
+    cat: "resource"
+  }],
+  reminders: [{
+    text: "Book follow-up with Mr Punwar",
+    detail: "~4 weeks from 13 May = book around 10 Jun. punwar.admin@lips.org.uk · +44 (0)20 8194 8541",
+    pri: "high",
+    due: "~10 Jun 2026"
+  }, {
+    text: "Confirm surgery date",
+    detail: "Provisionally late June. Once confirmed, plan apartment, work cover, parents visit.",
+    pri: "high",
+    due: "after next physio"
+  }, {
+    text: "Book service apartment for parents",
+    detail: "~1 month around surgery. Near King Edward VII’s (5–10 Beaumont St W1G 6AA). Book ~6 wks pre-surgery.",
+    pri: "medium",
+    due: "~6 wks pre-surgery"
+  }, {
+    text: "Blood thinners if travelling",
+    detail: "Required within 4–6 weeks post-surgery. Ask GP or Mr Punwar to prescribe.",
+    pri: "low",
+    due: "pre-surgery"
+  }],
+  timeline: [{
+    label: "Injury",
+    emoji: "\uD83E\uDDB5",
+    date: "24 Apr",
+    status: "done",
+    pos: 0
+  }, {
+    label: "MRI",
+    emoji: "\uD83E\uDDA0",
+    date: "4 May",
+    status: "done",
+    pos: 12.5
+  }, {
+    label: "Consult",
+    emoji: "\uD83D\uDC68\u200D\u2695\uFE0F",
+    date: "13 May",
+    status: "done",
+    pos: 25
+  }, {
+    label: "Prehab",
+    emoji: "\uD83C\uDFC3",
+    date: "19 May",
+    status: "active",
+    pos: 37.5
+  }, {
+    label: "Surgery",
+    emoji: "\u2702\uFE0F",
+    date: "~mid Jul",
+    status: "projected",
+    pos: 50
+  }, {
+    label: "Daily life",
+    emoji: "\uD83D\uDEB6",
+    date: "~Sep 26",
+    status: "projected",
+    pos: 62.5
+  }, {
+    label: "Cycling",
+    emoji: "\uD83D\uDEB4",
+    date: "~Nov 26",
+    status: "projected",
+    pos: 75
+  }, {
+    label: "Tennis",
+    emoji: "\uD83C\uDFBE",
+    date: "~Apr 27",
+    status: "projected",
+    pos: 87.5
+  }, {
+    label: "Football",
+    emoji: "\u26BD",
+    date: "~Jul 27",
+    status: "projected",
+    pos: 100
+  }],
+  months: [{
+    l: "Apr '26",
+    p: 0
+  }, {
+    l: "May",
+    p: 18
+  }, {
+    l: "Jul",
+    p: 50
+  }, {
+    l: "Sep",
+    p: 62.5
+  }, {
+    l: "Nov",
+    p: 75
+  }, {
+    l: "Apr '27",
+    p: 87.5
+  }, {
+    l: "Jul '27",
+    p: 100
+  }],
+  romHistory: [{
+    date: "24 Apr",
+    label: "Injury",
+    flexion: 20,
+    extension: 40
+  }, {
+    date: "19 May",
+    label: "Sess. 1",
+    flexion: 40,
+    extension: 5
+  }, {
+    date: "22 May",
+    label: "Now",
+    flexion: 90,
+    extension: 10
+  }]
+};
+
+// ─── Design tokens ────────────────────────────────────────────────────────────
+const BG = "#17171A";
+const CARD = "#1E1E21";
+const CARD2 = "#252528";
+const STAT = "#2B2B2E";
+const BORD = "rgba(255,255,255,0.10)";
+const BORD2 = "rgba(255,255,255,0.20)";
+const T1 = "#EDEDEA";
+const T2 = "#9A9A97";
+const T3 = "#5A5A58";
+const TLINK = "#78B4F0";
+const DONE_C = "#1DBF80";
+const ACTIVE_C = "#8B84E2";
+const PROJ_C = "#3E3E42";
+const card = {
+  background: CARD,
+  border: `1px solid ${BORD}`,
+  borderRadius: 12,
+  padding: "13px 15px"
+};
+const card2 = {
+  background: CARD2,
+  border: `1px solid ${BORD}`,
+  borderRadius: 12,
+  padding: "13px 15px"
+};
+
+// ─── Primitives ───────────────────────────────────────────────────────────────
+function Tag({
+  children,
+  color
+}) {
+  const t = {
+    purple: ["#28234E", "#9C96F0"],
+    amber: ["#3A2810", "#D4952A"],
+    red: ["#3A1616", "#D45A5A"],
+    gray: ["#2A2A2E", "#7A7A78"],
+    teal: ["#162B22", "#34C98A"]
+  };
+  const [bg, fg] = t[color] || t.gray;
+  return /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 11,
+      padding: "2px 9px",
+      borderRadius: 20,
+      background: bg,
+      color: fg,
+      fontWeight: 500,
+      whiteSpace: "nowrap",
+      flexShrink: 0
+    }
+  }, children);
+}
+function Tile({
+  children,
+  onClick
+}) {
+  const [hov, setHov] = useState(false);
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...card,
+      cursor: onClick ? "pointer" : "default",
+      borderColor: hov && onClick ? BORD2 : BORD,
+      background: hov && onClick ? "#242427" : CARD,
+      transition: "border-color .15s, background .15s"
+    },
+    onClick: onClick,
+    onMouseEnter: () => setHov(true),
+    onMouseLeave: () => setHov(false)
+  }, children);
+}
+function TileHead({
+  icon,
+  title,
+  badge,
+  expand
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 8,
+      marginBottom: 10
+    }
+  }, /*#__PURE__*/React.createElement("i", {
+    className: "ti " + icon,
+    style: {
+      fontSize: 15,
+      color: T2
+    },
+    "aria-hidden": "true"
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 13,
+      fontWeight: 500,
+      color: T1
+    }
+  }, title), badge, expand && /*#__PURE__*/React.createElement("span", {
+    style: {
+      marginLeft: "auto",
+      fontSize: 11,
+      color: T3
+    }
+  }, "expand \\u2197"));
+}
+function Txt({
+  children,
+  size,
+  muted,
+  dim,
+  bold,
+  mt,
+  mb
+}) {
+  return /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: dim ? 11 : size || 12,
+      color: dim ? T3 : muted ? T2 : T1,
+      margin: 0,
+      lineHeight: 1.6,
+      fontWeight: bold ? 500 : 400,
+      marginTop: mt || 0,
+      marginBottom: mb || 0
+    }
+  }, children);
+}
+function Line() {
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      height: "0.5px",
+      background: BORD
+    }
+  });
+}
+function RomRow({
+  rom
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      marginBottom: 5
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 12,
+      color: T2
+    }
+  }, rom.label), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 12,
+      fontWeight: 500,
+      color: T1
+    }
+  }, rom.current, "\° ", /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: T3,
+      fontWeight: 400
+    }
+  }, "\→ ", rom.target, "\°"))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: PROJ_C,
+      borderRadius: 4,
+      height: 6
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: ACTIVE_C,
+      height: 6,
+      borderRadius: 4,
+      width: rom.desc ? Math.max(0, Math.min(100, (rom.start - rom.current) / Math.max(1, rom.start - rom.target) * 100)) + "%" : Math.max(0, Math.min(100, rom.current / Math.max(1, rom.target) * 100)) + "%"
+    }
+  })));
+}
+
+// ─── Timeline ─────────────────────────────────────────────────────────────────
+// Fix: wrapper divs use top:0,bottom:0 so bottom-anchored children position correctly
+function Timeline({
+  items,
+  months
+}) {
+  const activePct = (items.find(x => x.status === "active") || {
+    pos: 0
+  }).pos;
+  const H = 148; // total container height
+  const trackTop = 74; // y of track bar
+  const dotR = 8; // dot radius
+  const dotTop = trackTop - dotR + 1; // dot's CSS top (center aligns with track)
+
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "relative",
+      height: H,
+      marginTop: 6
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "absolute",
+      top: trackTop,
+      left: 0,
+      right: 0,
+      height: 5,
+      background: PROJ_C,
+      borderRadius: 3
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "absolute",
+      top: trackTop,
+      left: 0,
+      width: activePct + "%",
+      height: 5,
+      background: DONE_C,
+      borderRadius: "3px 0 0 3px"
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "absolute",
+      top: trackTop,
+      left: activePct + "%",
+      width: "3.5%",
+      height: 5,
+      background: ACTIVE_C,
+      borderRadius: "0 3px 3px 0"
+    }
+  }), items.map((item, i) => {
+    const above = i % 2 === 0;
+    const dotCol = item.status === "done" ? DONE_C : item.status === "active" ? ACTIVE_C : T3;
+    return (
+      /*#__PURE__*/
+      // CRITICAL: top:0 bottom:0 makes wrapper span full H so
+      // `bottom` values on children are measured from container bottom (H px),
+      // not from a 0-height collapsed box.
+      React.createElement("div", {
+        key: i,
+        style: {
+          position: "absolute",
+          left: item.pos + "%",
+          top: 0,
+          bottom: 0
+        }
+      }, above && /*#__PURE__*/React.createElement("div", {
+        style: {
+          position: "absolute",
+          // bottom of label sits 6px above top of dot
+          bottom: H - dotTop + 6,
+          left: "50%",
+          transform: "translateX(-50%)",
+          textAlign: "center",
+          whiteSpace: "nowrap",
+          lineHeight: 1.3
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 17
+        }
+      }, item.emoji), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 9,
+          color: T1,
+          fontWeight: 600,
+          marginTop: 1
+        }
+      }, item.label), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 8,
+          color: T3,
+          marginTop: 1
+        }
+      }, item.date)), /*#__PURE__*/React.createElement("div", {
+        style: {
+          position: "absolute",
+          top: dotTop,
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: dotR * 2,
+          height: dotR * 2,
+          borderRadius: "50%",
+          background: dotCol,
+          border: "2px solid " + CARD,
+          boxShadow: "0 0 0 1px " + dotCol + "55"
+        }
+      }), !above && /*#__PURE__*/React.createElement("div", {
+        style: {
+          position: "absolute",
+          // top of label sits 6px below bottom of dot
+          top: dotTop + dotR * 2 + 6,
+          left: "50%",
+          transform: "translateX(-50%)",
+          textAlign: "center",
+          whiteSpace: "nowrap",
+          lineHeight: 1.3
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 17
+        }
+      }, item.emoji), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 9,
+          color: T1,
+          fontWeight: 600,
+          marginTop: 1
+        }
+      }, item.label), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 8,
+          color: T3,
+          marginTop: 1
+        }
+      }, item.date)))
+    );
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "relative",
+      height: 20,
+      borderTop: "0.5px solid " + BORD,
+      marginTop: 2
+    }
+  }, months.map((m, i) => /*#__PURE__*/React.createElement("span", {
+    key: i,
+    style: {
+      position: "absolute",
+      left: m.p + "%",
+      transform: "translateX(-50%)",
+      top: 6,
+      fontSize: 9,
+      color: T3,
+      whiteSpace: "nowrap"
+    }
+  }, m.l))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 16,
+      marginTop: 10
+    }
+  }, [[DONE_C, "completed"], [ACTIVE_C, "active"], [T3, "projected"]].map(([c, l]) => /*#__PURE__*/React.createElement("div", {
+    key: l,
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 5
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 12,
+      height: 4,
+      borderRadius: 2,
+      background: c
+    }
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 11,
+      color: T3
+    }
+  }, l)))));
+}
+
+// ─── Main Dashboard ───────────────────────────────────────────────────────────
+function Dashboard({
+  data,
+  go
+}) {
+  const doneGoals = data.goals.filter(g => g.done).length;
+  const urgentRem = data.reminders.filter(r => r.pri === "high").length;
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: "system-ui,-apple-system,sans-serif",
+      color: T1
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "baseline",
+      gap: 10,
+      marginBottom: 16
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 18,
+      fontWeight: 600,
+      color: T1,
+      letterSpacing: "-.01em"
+    }
+  }, "ACL Recovery"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 12,
+      color: T3
+    }
+  }, "\· updated ", data.lastUpdated), /*#__PURE__*/React.createElement("span", {
+    style: {
+      marginLeft: "auto",
+      fontSize: 11,
+      color: T3
+    }
+  }, "tap to expand")), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(4,minmax(0,1fr))",
+      gap: 8,
+      marginBottom: 10
+    }
+  }, data.stats.map((s, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    style: {
+      background: STAT,
+      border: "1px solid " + BORD,
+      borderRadius: 10,
+      padding: "10px 12px"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 21,
+      fontWeight: 600,
+      color: T1,
+      letterSpacing: "-.01em"
+    }
+  }, s.n), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: T3,
+      marginTop: 3
+    }
+  }, s.l)))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "minmax(0,1.1fr) minmax(0,1fr) minmax(0,.85fr)",
+      gap: 10,
+      marginBottom: 10
+    }
+  }, /*#__PURE__*/React.createElement(Tile, {
+    onClick: () => go("stage")
+  }, /*#__PURE__*/React.createElement(TileHead, {
+    icon: "ti-run",
+    title: "current stage",
+    badge: /*#__PURE__*/React.createElement(Tag, {
+      color: "purple"
+    }, "prehab"),
+    expand: true
+  }), /*#__PURE__*/React.createElement(Txt, {
+    muted: true,
+    bold: true,
+    mb: 4
+  }, "Session ", data.stage.sessionNum, " \· ", data.stage.physio), data.stage.exercises.slice(0, 2).map((e, i) => /*#__PURE__*/React.createElement(Txt, {
+    key: i,
+    muted: true
+  }, e.name, " \— ", e.schedule)), /*#__PURE__*/React.createElement(Txt, {
+    dim: true,
+    mt: 3
+  }, "+1 more exercise")), /*#__PURE__*/React.createElement(Tile, {
+    onClick: () => go("clinical")
+  }, /*#__PURE__*/React.createElement(TileHead, {
+    icon: "ti-file-medical",
+    title: "clinical summary",
+    expand: true
+  }), /*#__PURE__*/React.createElement(Txt, {
+    bold: true,
+    mb: 4
+  }, "ACL rupture + lateral meniscal tear"), /*#__PURE__*/React.createElement(Txt, {
+    muted: true
+  }, "Surgery: hamstring graft \· ", data.clinical.surgeryTarget), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 5,
+      marginTop: 9,
+      flexWrap: "wrap"
+    }
+  }, data.clinical.consultants.map((c, i) => /*#__PURE__*/React.createElement("span", {
+    key: i,
+    style: {
+      fontSize: 11,
+      padding: "2px 9px",
+      borderRadius: 20,
+      background: c.ab,
+      color: c.at,
+      fontWeight: 500
+    }
+  }, c.initials, " \· ", c.name.split(" ").pop())))), /*#__PURE__*/React.createElement(Tile, {
+    onClick: () => go("appointments")
+  }, /*#__PURE__*/React.createElement(TileHead, {
+    icon: "ti-calendar",
+    title: "sessions",
+    expand: true
+  }), data.appointments.slice(0, 3).map((a, i) => /*#__PURE__*/React.createElement("div", {
+    key: i
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      padding: "5px 0",
+      alignItems: "center"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 7,
+      height: 7,
+      borderRadius: "50%",
+      flexShrink: 0,
+      background: a.status === "today" ? ACTIVE_C : T3
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1
+    }
+  }, /*#__PURE__*/React.createElement(Txt, {
+    bold: a.status === "today"
+  }, a.date, " \· ", a.time), /*#__PURE__*/React.createElement(Txt, {
+    dim: true
+  }, a.who)), a.status === "today" && /*#__PURE__*/React.createElement(Tag, {
+    color: "purple"
+  }, "today")), i < 2 && /*#__PURE__*/React.createElement(Line, null))))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "minmax(0,1fr) minmax(0,1fr)",
+      gap: 10,
+      marginBottom: 10
+    }
+  }, /*#__PURE__*/React.createElement(Tile, {
+    onClick: () => onView("rom")
+  }, /*#__PURE__*/React.createElement(TileHead, {
+    icon: "ti-trending-up",
+    title: "range of motion"
+  }), /*#__PURE__*/React.createElement(RomRow, {
+    rom: data.rom.flexion
+  }), /*#__PURE__*/React.createElement(RomRow, {
+    rom: data.rom.extension
+  }), /*#__PURE__*/React.createElement(Txt, {
+    dim: true
+  }, "target: 0\° extension \· 130\°+ flexion before surgery")), /*#__PURE__*/React.createElement(Tile, {
+    onClick: () => go("goals")
+  }, /*#__PURE__*/React.createElement(TileHead, {
+    icon: "ti-trophy",
+    title: "goals & milestones",
+    badge: /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 11,
+        color: T3
+      }
+    }, doneGoals, "/", data.goals.length),
+    expand: true
+  }), data.goals.slice(0, 5).map((g, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 9,
+      padding: "3px 0"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 15,
+      height: 15,
+      borderRadius: 4,
+      flexShrink: 0,
+      border: g.done ? "none" : "1.5px solid " + BORD2,
+      background: g.done ? DONE_C : "transparent",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center"
+    }
+  }, g.done && /*#__PURE__*/React.createElement("i", {
+    className: "ti ti-check",
+    style: {
+      fontSize: 10,
+      color: "#fff"
+    },
+    "aria-hidden": "true"
+  })), /*#__PURE__*/React.createElement("span", {
+    style: {
+      flex: 1,
+      fontSize: 12,
+      color: g.done ? T3 : T1,
+      textDecoration: g.done ? "line-through" : "none"
+    }
+  }, g.label), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 11,
+      color: T3
+    }
+  }, g.when))), /*#__PURE__*/React.createElement(Txt, {
+    dim: true,
+    mt: 5
+  }, "+", data.goals.length - 5, " more goals"))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "minmax(0,1fr) minmax(0,1fr)",
+      gap: 10,
+      marginBottom: 10
+    }
+  }, /*#__PURE__*/React.createElement(Tile, {
+    onClick: () => go("links")
+  }, /*#__PURE__*/React.createElement(TileHead, {
+    icon: "ti-link",
+    title: "useful links",
+    expand: true
+  }), data.links.slice(0, 4).map((l, i) => /*#__PURE__*/React.createElement("div", {
+    key: i
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 9,
+      padding: "5px 0"
+    }
+  }, /*#__PURE__*/React.createElement("i", {
+    className: "ti " + l.icon,
+    style: {
+      fontSize: 14,
+      color: T3,
+      flexShrink: 0
+    },
+    "aria-hidden": "true"
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 12,
+      color: T1,
+      flex: 1
+    }
+  }, l.label), /*#__PURE__*/React.createElement("i", {
+    className: "ti ti-external-link",
+    style: {
+      fontSize: 12,
+      color: T3
+    },
+    "aria-hidden": "true"
+  })), i < 3 && /*#__PURE__*/React.createElement(Line, null))), /*#__PURE__*/React.createElement(Txt, {
+    dim: true,
+    mt: 4
+  }, "+", data.links.length - 4, " more")), /*#__PURE__*/React.createElement(Tile, {
+    onClick: () => go("reminders")
+  }, /*#__PURE__*/React.createElement(TileHead, {
+    icon: "ti-bell",
+    title: "reminders",
+    badge: /*#__PURE__*/React.createElement(Tag, {
+      color: "amber"
+    }, urgentRem, " urgent"),
+    expand: true
+  }), data.reminders.map((r, i) => /*#__PURE__*/React.createElement("div", {
+    key: i
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 9,
+      padding: "5px 0"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 7,
+      height: 7,
+      borderRadius: "50%",
+      flexShrink: 0,
+      marginTop: 5,
+      background: r.pri === "high" ? "#D45252" : r.pri === "medium" ? "#D49A2A" : T3
+    }
+  }), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(Txt, null, r.text), /*#__PURE__*/React.createElement(Txt, {
+    dim: true
+  }, r.due))), i < data.reminders.length - 1 && /*#__PURE__*/React.createElement(Line, null))))), /*#__PURE__*/React.createElement(Tile, null, /*#__PURE__*/React.createElement(TileHead, {
+    icon: "ti-timeline",
+    title: "recovery timeline",
+    badge: /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: 11,
+        color: T3
+      }
+    }, "schematic")
+  }), /*#__PURE__*/React.createElement(Timeline, {
+    items: data.timeline,
+    months: data.months
+  })));
+}
+
+// ─── Detail views ─────────────────────────────────────────────────────────────
+function BackBtn({
+  onBack
+}) {
+  return /*#__PURE__*/React.createElement("button", {
+    onClick: onBack,
+    style: {
+      background: "none",
+      border: "none",
+      cursor: "pointer",
+      display: "flex",
+      alignItems: "center",
+      gap: 6,
+      fontSize: 13,
+      color: T2,
+      padding: "0 0 16px 0",
+      fontFamily: "inherit"
+    }
+  }, /*#__PURE__*/React.createElement("i", {
+    className: "ti ti-arrow-left",
+    style: {
+      fontSize: 14
+    },
+    "aria-hidden": "true"
+  }), "back to dashboard");
+}
+function DTitle({
+  children
+}) {
+  return /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 17,
+      fontWeight: 600,
+      color: T1,
+      margin: "0 0 14px",
+      letterSpacing: "-.01em"
+    }
+  }, children);
+}
+function SLabel({
+  children
+}) {
+  return /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 12,
+      fontWeight: 500,
+      color: T1,
+      margin: "0 0 9px"
+    }
+  }, children);
+}
+function ICard({
+  children,
+  mb
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      ...card2,
+      marginBottom: mb === false ? 0 : 10
+    }
+  }, children);
+}
+function DetailStage({
+  data,
+  onBack
+}) {
+  const {
+    stage,
+    rom
+  } = data;
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(DTitle, null, "Current stage"), /*#__PURE__*/React.createElement(ICard, null, /*#__PURE__*/React.createElement(SLabel, null, "Session ", stage.sessionNum, " \· ", stage.physio), stage.exercises.map((e, i) => /*#__PURE__*/React.createElement("div", {
+    key: i
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      padding: "8px 0"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 13,
+      color: T1
+    }
+  }, e.name), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 12,
+      color: T2
+    }
+  }, e.schedule)), i < stage.exercises.length - 1 && /*#__PURE__*/React.createElement(Line, null)))), /*#__PURE__*/React.createElement(ICard, null, /*#__PURE__*/React.createElement(SLabel, null, "Current focus"), stage.focus.map((f, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    style: {
+      display: "flex",
+      gap: 9,
+      padding: "3px 0"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 11,
+      color: T3,
+      marginTop: 4
+    }
+  }, "\—"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 13,
+      color: T1
+    }
+  }, f)))), /*#__PURE__*/React.createElement(ICard, null, /*#__PURE__*/React.createElement(SLabel, null, "Physio notes"), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 13,
+      color: T2,
+      lineHeight: 1.65,
+      margin: 0
+    }
+  }, stage.notes)), /*#__PURE__*/React.createElement(ICard, {
+    mb: false
+  }, /*#__PURE__*/React.createElement(SLabel, null, "ROM progress"), /*#__PURE__*/React.createElement(RomRow, {
+    rom: rom.flexion
+  }), /*#__PURE__*/React.createElement(RomRow, {
+    rom: rom.extension
+  })));
+}
+function DetailClinical({
+  data,
+  onBack
+}) {
+  const {
+    clinical
+  } = data;
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(DTitle, null, "Clinical summary"), /*#__PURE__*/React.createElement(ICard, null, /*#__PURE__*/React.createElement(SLabel, null, "Diagnosis"), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 13,
+      color: T1,
+      margin: "0 0 5px"
+    }
+  }, clinical.diagnosis), /*#__PURE__*/React.createElement(Txt, {
+    muted: true
+  }, "MRI: ", clinical.mriDate, " \· Consult: ", clinical.consultDate)), /*#__PURE__*/React.createElement(ICard, null, /*#__PURE__*/React.createElement(SLabel, null, "Surgical plan"), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 13,
+      color: T1,
+      lineHeight: 1.65,
+      margin: "0 0 6px"
+    }
+  }, clinical.plan), /*#__PURE__*/React.createElement(Txt, {
+    muted: true
+  }, "Target: ", clinical.surgeryTarget)), /*#__PURE__*/React.createElement(ICard, null, /*#__PURE__*/React.createElement(SLabel, null, "Recovery roadmap"), /*#__PURE__*/React.createElement(Txt, {
+    muted: true
+  }, clinical.recovery)), /*#__PURE__*/React.createElement(ICard, null, /*#__PURE__*/React.createElement(SLabel, null, "Care team"), clinical.consultants.map((c, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    style: {
+      border: "1px solid " + BORD,
+      borderRadius: 10,
+      padding: "11px 13px",
+      marginBottom: i < clinical.consultants.length - 1 ? 8 : 0
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 11,
+      marginBottom: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 44,
+      height: 44,
+      borderRadius: "50%",
+      background: c.ab,
+      color: c.at,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      fontSize: 13,
+      fontWeight: 600,
+      flexShrink: 0
+    }
+  }, c.initials), /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 13,
+      fontWeight: 600,
+      margin: 0,
+      color: T1
+    }
+  }, c.name), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 12,
+      color: T2,
+      margin: "1px 0 0"
+    }
+  }, c.role), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 11,
+      color: T3,
+      margin: 0
+    }
+  }, c.quals), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 11,
+      color: T3,
+      margin: 0
+    }
+  }, c.org))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      borderTop: "1px solid " + BORD,
+      paddingTop: 9,
+      display: "flex",
+      flexDirection: "column",
+      gap: 6
+    }
+  }, /*#__PURE__*/React.createElement("a", {
+    href: "mailto:" + c.email,
+    style: {
+      fontSize: 12,
+      color: TLINK,
+      textDecoration: "none",
+      display: "flex",
+      alignItems: "center",
+      gap: 7
+    }
+  }, /*#__PURE__*/React.createElement("i", {
+    className: "ti ti-mail",
+    style: {
+      fontSize: 13,
+      color: T3
+    },
+    "aria-hidden": "true"
+  }), c.email), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 7
+    }
+  }, /*#__PURE__*/React.createElement("i", {
+    className: "ti ti-phone",
+    style: {
+      fontSize: 13,
+      color: T3
+    },
+    "aria-hidden": "true"
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 12,
+      color: T2
+    }
+  }, c.phone)), /*#__PURE__*/React.createElement("a", {
+    href: c.url,
+    target: "_blank",
+    rel: "noopener noreferrer",
+    style: {
+      fontSize: 12,
+      color: TLINK,
+      textDecoration: "none",
+      display: "flex",
+      alignItems: "center",
+      gap: 7
+    }
+  }, /*#__PURE__*/React.createElement("i", {
+    className: "ti ti-external-link",
+    style: {
+      fontSize: 13
+    },
+    "aria-hidden": "true"
+  }), "Visit profile"))))), /*#__PURE__*/React.createElement(ICard, {
+    mb: false
+  }, /*#__PURE__*/React.createElement(SLabel, null, "Insurance & admin"), /*#__PURE__*/React.createElement(Txt, {
+    muted: true,
+    mb: 3
+  }, "Policy: ", clinical.policyRef), /*#__PURE__*/React.createElement(Txt, {
+    muted: true,
+    mb: 3
+  }, "GP: ", clinical.gp), /*#__PURE__*/React.createElement(Txt, {
+    muted: true
+  }, "Hospital: ", clinical.hospital)));
+}
+function DetailAppointments({
+  data,
+  onBack
+}) {
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(DTitle, null, "Appointments"), /*#__PURE__*/React.createElement(ICard, {
+    mb: false
+  }, data.appointments.map((a, i) => /*#__PURE__*/React.createElement("div", {
+    key: i
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 12,
+      padding: "11px 0"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 9,
+      height: 9,
+      borderRadius: "50%",
+      background: a.status === "today" ? ACTIVE_C : T3,
+      marginTop: 4,
+      flexShrink: 0
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 8,
+      marginBottom: 3
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 13,
+      fontWeight: 500,
+      color: T1
+    }
+  }, a.date, " at ", a.time), a.status === "today" && /*#__PURE__*/React.createElement(Tag, {
+    color: "purple"
+  }, "today")), /*#__PURE__*/React.createElement(Txt, {
+    muted: true
+  }, a.who), /*#__PURE__*/React.createElement(Txt, {
+    dim: true
+  }, a.where))), i < data.appointments.length - 1 && /*#__PURE__*/React.createElement(Line, null)))));
+}
+function DetailGoals({
+  data,
+  onBack
+}) {
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(DTitle, null, "Goals & milestones"), /*#__PURE__*/React.createElement(ICard, {
+    mb: false
+  }, data.goals.map((g, i) => /*#__PURE__*/React.createElement("div", {
+    key: i
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 10,
+      padding: "10px 0"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 18,
+      height: 18,
+      borderRadius: 5,
+      flexShrink: 0,
+      border: g.done ? "none" : "1.5px solid " + BORD2,
+      background: g.done ? DONE_C : "transparent",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center"
+    }
+  }, g.done && /*#__PURE__*/React.createElement("i", {
+    className: "ti ti-check",
+    style: {
+      fontSize: 11,
+      color: "#fff"
+    },
+    "aria-hidden": "true"
+  })), /*#__PURE__*/React.createElement("span", {
+    style: {
+      flex: 1,
+      fontSize: 13,
+      color: g.done ? T3 : T1,
+      textDecoration: g.done ? "line-through" : "none"
+    }
+  }, g.label), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 12,
+      color: T3
+    }
+  }, g.when)), i < data.goals.length - 1 && /*#__PURE__*/React.createElement(Line, null)))));
+}
+function DetailLinks({
+  data,
+  onBack
+}) {
+  const cats = [...new Set(data.links.map(l => l.cat))];
+  const catLabel = {
+    booking: "booking",
+    insurance: "insurance",
+    resource: "resources",
+    video: "videos"
+  };
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(DTitle, null, "Useful links"), cats.map(cat => /*#__PURE__*/React.createElement("div", {
+    key: cat,
+    style: {
+      marginBottom: 14
+    }
+  }, /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 11,
+      fontWeight: 600,
+      color: T3,
+      textTransform: "uppercase",
+      letterSpacing: ".07em",
+      margin: "0 0 8px"
+    }
+  }, catLabel[cat] || cat), /*#__PURE__*/React.createElement(ICard, {
+    mb: false
+  }, data.links.filter(l => l.cat === cat).map((l, i, arr) => /*#__PURE__*/React.createElement("div", {
+    key: i
+  }, /*#__PURE__*/React.createElement("a", {
+    href: l.url,
+    target: "_blank",
+    rel: "noopener noreferrer",
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 10,
+      padding: "10px 0",
+      textDecoration: "none"
+    }
+  }, /*#__PURE__*/React.createElement("i", {
+    className: "ti " + l.icon,
+    style: {
+      fontSize: 16,
+      color: T2,
+      flexShrink: 0
+    },
+    "aria-hidden": "true"
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1
+    }
+  }, /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 13,
+      color: T1,
+      margin: "0 0 2px"
+    }
+  }, l.label), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 11,
+      color: T3,
+      margin: 0
+    }
+  }, l.desc)), /*#__PURE__*/React.createElement("i", {
+    className: "ti ti-external-link",
+    style: {
+      fontSize: 13,
+      color: T3
+    },
+    "aria-hidden": "true"
+  })), i < arr.length - 1 && /*#__PURE__*/React.createElement(Line, null)))))));
+}
+function DetailReminders({
+  data,
+  onBack
+}) {
+  const dotCol = {
+    high: "#D45252",
+    medium: "#D49A2A",
+    low: T3
+  };
+  const tagCol = {
+    high: "red",
+    medium: "amber",
+    low: "gray"
+  };
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(DTitle, null, "Reminders"), data.reminders.map((r, i) => /*#__PURE__*/React.createElement(ICard, {
+    key: i
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 11
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 8,
+      height: 8,
+      borderRadius: "50%",
+      background: dotCol[r.pri],
+      marginTop: 5,
+      flexShrink: 0
+    }
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 9,
+      marginBottom: 5,
+      flexWrap: "wrap"
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 13,
+      fontWeight: 500,
+      color: T1
+    }
+  }, r.text), /*#__PURE__*/React.createElement(Tag, {
+    color: tagCol[r.pri]
+  }, r.pri)), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 12,
+      color: T2,
+      lineHeight: 1.65,
+      margin: "0 0 6px"
+    }
+  }, r.detail), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 5
+    }
+  }, /*#__PURE__*/React.createElement("i", {
+    className: "ti ti-clock",
+    style: {
+      fontSize: 12,
+      color: T3
+    },
+    "aria-hidden": "true"
+  }), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 11,
+      color: T3
+    }
+  }, r.due)))))));
+}
+
+// ── ROM History Chart ──────────────────────────────────────────────────────────
+function RomHistoryChart({
+  history
+}) {
+  const W = 540,
+    H = 170;
+  const PL = 36,
+    PR = 56,
+    PT = 18,
+    PB = 26;
+  const cW = W - PL - PR,
+    cH = H - PT - PB;
+  const yMin = -15,
+    yMax = 145,
+    yRange = yMax - yMin;
+  const xStep = history.length > 1 ? cW / (history.length - 1) : cW / 2;
+  const toX = i => PL + i * xStep;
+  const toY = v => PT + cH - (v - yMin) / yRange * cH;
+  const flexPts = history.map((d, i) => `${toX(i)},${toY(d.flexion)}`).join(" ");
+  const extPts = history.map((d, i) => `${toX(i)},${toY(d.extension)}`).join(" ");
+  return /*#__PURE__*/React.createElement("svg", {
+    viewBox: `0 0 ${W} ${H}`,
+    style: {
+      width: "100%",
+      height: "auto",
+      overflow: "visible"
+    }
+  }, [0, 30, 60, 90, 120].map(v => /*#__PURE__*/React.createElement("g", {
+    key: v
+  }, /*#__PURE__*/React.createElement("line", {
+    x1: PL,
+    y1: toY(v),
+    x2: W - PR,
+    y2: toY(v),
+    stroke: "rgba(255,255,255,0.07)",
+    strokeWidth: "1"
+  }), /*#__PURE__*/React.createElement("text", {
+    x: PL - 4,
+    y: toY(v) + 4,
+    fontSize: "9",
+    fill: "#5A5A58",
+    textAnchor: "end"
+  }, v, "\xB0"))), /*#__PURE__*/React.createElement("line", {
+    x1: PL,
+    y1: toY(0),
+    x2: W - PR,
+    y2: toY(0),
+    stroke: "rgba(255,255,255,0.18)",
+    strokeWidth: "1",
+    strokeDasharray: "3,3"
+  }), /*#__PURE__*/React.createElement("line", {
+    x1: PL,
+    y1: toY(130),
+    x2: W - PR,
+    y2: toY(130),
+    stroke: "#1DBF80",
+    strokeWidth: "1",
+    strokeDasharray: "5,3",
+    opacity: "0.5"
+  }), /*#__PURE__*/React.createElement("text", {
+    x: W - PR + 4,
+    y: toY(130) + 4,
+    fontSize: "9",
+    fill: "#1DBF80",
+    opacity: "0.7"
+  }, "130\xB0 target"), /*#__PURE__*/React.createElement("line", {
+    x1: PL,
+    y1: toY(-5),
+    x2: W - PR,
+    y2: toY(-5),
+    stroke: "#8B84E2",
+    strokeWidth: "1",
+    strokeDasharray: "5,3",
+    opacity: "0.5"
+  }), /*#__PURE__*/React.createElement("text", {
+    x: W - PR + 4,
+    y: toY(-5) + 4,
+    fontSize: "9",
+    fill: "#8B84E2",
+    opacity: "0.7"
+  }, "-5\xB0 target"), /*#__PURE__*/React.createElement("polyline", {
+    points: flexPts,
+    fill: "none",
+    stroke: "#1DBF80",
+    strokeWidth: "2.5",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  }), /*#__PURE__*/React.createElement("polyline", {
+    points: extPts,
+    fill: "none",
+    stroke: "#8B84E2",
+    strokeWidth: "2.5",
+    strokeLinecap: "round",
+    strokeLinejoin: "round"
+  }), history.map((d, i) => /*#__PURE__*/React.createElement("g", {
+    key: i
+  }, /*#__PURE__*/React.createElement("circle", {
+    cx: toX(i),
+    cy: toY(d.flexion),
+    r: "5",
+    fill: "#1DBF80",
+    stroke: "#1E1E21",
+    strokeWidth: "2"
+  }), /*#__PURE__*/React.createElement("text", {
+    x: toX(i),
+    y: toY(d.flexion) - 9,
+    fontSize: "10",
+    fill: "#1DBF80",
+    textAnchor: "middle",
+    fontWeight: "600"
+  }, d.flexion, "\xB0"), /*#__PURE__*/React.createElement("circle", {
+    cx: toX(i),
+    cy: toY(d.extension),
+    r: "5",
+    fill: "#8B84E2",
+    stroke: "#1E1E21",
+    strokeWidth: "2"
+  }), /*#__PURE__*/React.createElement("text", {
+    x: toX(i),
+    y: toY(d.extension) + 16,
+    fontSize: "10",
+    fill: "#8B84E2",
+    textAnchor: "middle",
+    fontWeight: "600"
+  }, d.extension, "\xB0"), /*#__PURE__*/React.createElement("text", {
+    x: toX(i),
+    y: H - 2,
+    fontSize: "9",
+    fill: "#5A5A58",
+    textAnchor: "middle"
+  }, d.date))));
+}
+function DetailRom({
+  data
+}) {
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(STitle, null, "Range of Motion"), /*#__PURE__*/React.createElement(IC, null, /*#__PURE__*/React.createElement(SLabel, null, "Current — 22 May 2026"), /*#__PURE__*/React.createElement(RomBar, {
+    label: "Flexion",
+    current: data.rom.flexion.current,
+    target: data.rom.flexion.target,
+    start: data.rom.flexion.start
+  }), /*#__PURE__*/React.createElement(RomBar, {
+    label: "Extension",
+    current: data.rom.extension.current,
+    target: data.rom.extension.target,
+    start: data.rom.extension.start
+  }), /*#__PURE__*/React.createElement(T, {
+    c3: true
+  }, "Targets: -5\xB0 extension (hyperextension) \xB7 130\xB0+ flexion before surgery")), /*#__PURE__*/React.createElement(IC, null, /*#__PURE__*/React.createElement(SLabel, null, "Progression chart"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 16,
+      marginBottom: 12
+    }
+  }, [[DONE_C, "Flexion"], [ACTIVE_C, "Extension"]].map(([c, l]) => /*#__PURE__*/React.createElement("div", {
+    key: l,
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 6
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 12,
+      height: 4,
+      borderRadius: 2,
+      background: c
+    }
+  }), /*#__PURE__*/React.createElement(T, {
+    c2: true
+  }, l)))), /*#__PURE__*/React.createElement(RomHistoryChart, {
+    history: data.romHistory
+  })), /*#__PURE__*/React.createElement(IC, {
+    mb: false
+  }, /*#__PURE__*/React.createElement(SLabel, null, "Measurement log"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr 1fr 1fr",
+      padding: "0 0 7px",
+      borderBottom: `1px solid ${BORD}`
+    }
+  }, ["Date", "Event", "Flexion", "Extension"].map(h => /*#__PURE__*/React.createElement("span", {
+    key: h,
+    style: {
+      fontSize: 11,
+      color: T3,
+      fontWeight: 600,
+      textTransform: "uppercase",
+      letterSpacing: ".04em"
+    }
+  }, h))), data.romHistory.map((r, i) => /*#__PURE__*/React.createElement("div", {
+    key: i,
+    style: {
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr 1fr 1fr",
+      padding: "9px 0",
+      borderBottom: i < data.romHistory.length - 1 ? `0.5px solid ${BORD}` : "none"
+    }
+  }, /*#__PURE__*/React.createElement(T, null, r.date), /*#__PURE__*/React.createElement(T, {
+    c2: true
+  }, r.label), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 13,
+      color: DONE_C,
+      fontWeight: 500
+    }
+  }, r.flexion, "\xB0"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 13,
+      color: ACTIVE_C,
+      fontWeight: 500
+    }
+  }, r.extension, "\xB0"))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "1fr 1fr 1fr 1fr",
+      padding: "9px 0",
+      borderTop: `1px solid ${BORD}`,
+      marginTop: 4
+    }
+  }, /*#__PURE__*/React.createElement(T, {
+    c3: true,
+    style: {
+      fontStyle: "italic"
+    }
+  }, "Target"), /*#__PURE__*/React.createElement(T, {
+    c3: true,
+    style: {
+      fontStyle: "italic"
+    }
+  }, "—"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 12,
+      color: DONE_C,
+      opacity: 0.6
+    }
+  }, "130\xB0+"), /*#__PURE__*/React.createElement("span", {
+    style: {
+      fontSize: 12,
+      color: ACTIVE_C,
+      opacity: 0.6
+    }
+  }, "-5\xB0"))));
+}
+const DETAIL_VIEWS = {
+  stage: DetailStage,
+  clinical: DetailClinical,
+  appointments: DetailAppointments,
+  goals: DetailGoals,
+  links: DetailLinks,
+  reminders: DetailReminders,
+  rom: DetailRom
+};
+
+// ─── App ──────────────────────────────────────────────────────────────────────
+function App() {
+  const [data, setData] = useState(DATA);
+  const [view, setView] = useState(null);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(SK);
+      if (saved) setData(JSON.parse(saved));
+    } catch (e) {}
+    setLoading(false);
+  }, []);
+  useEffect(() => {
+    if (!loading) {
+      try {
+        localStorage.setItem(SK, JSON.stringify(data));
+      } catch (e) {}
+    }
+  }, [data, loading]);
+  if (loading) {
+    return /*#__PURE__*/React.createElement("div", {
+      style: {
+        padding: "3rem",
+        textAlign: "center",
+        color: T3,
+        fontFamily: "system-ui,sans-serif",
+        fontSize: 13
+      }
+    }, "Loading\…");
+  }
+  if (view) {
+    const Comp = DETAIL_VIEWS[view];
+    return /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontFamily: "system-ui,-apple-system,sans-serif",
+        color: T1
+      }
+    }, /*#__PURE__*/React.createElement(BackBtn, {
+      onBack: () => setView(null)
+    }), Comp && /*#__PURE__*/React.createElement(Comp, {
+      data: data,
+      onBack: () => setView(null)
+    }));
+  }
+  return /*#__PURE__*/React.createElement(Dashboard, {
+    data: data,
+    go: setView
+  });
+}
+ReactDOM.createRoot(document.getElementById("root")).render(React.createElement(App, null));
+</script>
+</body>
+</html>
