@@ -26,15 +26,15 @@ const {
 } = React;
 const SK = "acl_v3";
 const DATA = {
-  lastUpdated: "22 May 2026",
+  lastUpdated: "23 May 2026",
   stats: [{
-    n: "28",
+    n: "29",
     l: "days since injury"
   }, {
-    n: "~56",
+    n: "~55",
     l: "days to surgery"
   }, {
-    n: "5–40°",
+    n: "10–90°",
     l: "current ROM"
   }, {
     n: "2/4",
@@ -434,13 +434,7 @@ function TileHead({
       fontWeight: 500,
       color: T1
     }
-  }, title), badge, expand && /*#__PURE__*/React.createElement("span", {
-    style: {
-      marginLeft: "auto",
-      fontSize: 11,
-      color: T3
-    }
-  }, "expand \\u2197"));
+  }, title), badge, null);
 }
 function Txt({
   children,
@@ -736,7 +730,7 @@ function Dashboard({
       fontSize: 11,
       color: T3
     }
-  }, "tap to expand")), /*#__PURE__*/React.createElement("div", {
+  })), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "grid",
       gridTemplateColumns: "repeat(4,minmax(0,1fr))",
@@ -784,13 +778,13 @@ function Dashboard({
     muted: true,
     bold: true,
     mb: 4
-  }, "Session ", data.stage.sessionNum, " \· ", data.stage.physio), data.stage.exercises.slice(0, 2).map((e, i) => /*#__PURE__*/React.createElement(Txt, {
+  }, "Session ", data.stage.sessionNum, " \· ", data.stage.physio), data.stage.exercises.slice(0, 5).map((e, i) => /*#__PURE__*/React.createElement(Txt, {
     key: i,
     muted: true
-  }, e.name, " \— ", e.schedule)), /*#__PURE__*/React.createElement(Txt, {
+  }, e.name, " \— ", e.schedule)), data.stage.exercises.length > 5 && /*#__PURE__*/React.createElement(Txt, {
     dim: true,
     mt: 3
-  }, "+1 more exercise")), /*#__PURE__*/React.createElement(Tile, {
+  }, "+" + (data.stage.exercises.length - 5) + " more exercise" + (data.stage.exercises.length - 5 > 1 ? "s" : ""))), /*#__PURE__*/React.createElement(Tile, {
     onClick: () => go("clinical")
   }, /*#__PURE__*/React.createElement(TileHead, {
     icon: "ti-file-medical",
