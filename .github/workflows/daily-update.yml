@@ -1,0 +1,29 @@
+name: Daily Dashboard Update
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Run date update script
+        run: python3 update_dashboard.py
+
+      - name: Commit and push if anything changed
+        run: |
+          git config user.email "action@github.com"
+          git config user.name "Daily Update"
+          git add index.html
+          git diff --staged --quiet && echo "Nothing to commit" || (
+            git commit -m "Daily update: $(date +'%-d %b %Y')"
+            git push
+          )
