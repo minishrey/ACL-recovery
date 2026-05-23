@@ -107,13 +107,14 @@ const DATA = {
     time: "3:30 PM",
     who: "Oliver Wu",
     where: "5BG, UBS 5 Broadgate EC2M 2QS, Level 1",
-    status: "today"
+    status: "done"
   }, {
     date: "Wed 27 May",
     time: "11:00 AM",
     who: "Oliver Wu",
     where: "5BG, UBS 5 Broadgate EC2M 2QS, Level 1",
-    status: "upcoming"
+    status: "next",
+    daysTo: 4
   }, {
     date: "Fri 29 May",
     time: "2:30 PM",
@@ -833,19 +834,19 @@ function Dashboard({
       height: 7,
       borderRadius: "50%",
       flexShrink: 0,
-      background: a.status === "today" ? ACTIVE_C : T3
+      background: (a.status === "today" || a.status === "next") ? ACTIVE_C : T3
     }
   }), /*#__PURE__*/React.createElement("div", {
     style: {
       flex: 1
     }
   }, /*#__PURE__*/React.createElement(Txt, {
-    bold: a.status === "today"
+    bold: a.status === "today" || a.status === "next"
   }, a.date, " \· ", a.time), /*#__PURE__*/React.createElement(Txt, {
     dim: true
-  }, a.who)), a.status === "today" && /*#__PURE__*/React.createElement(Tag, {
+  }, a.who)), (a.status === "today" || a.status === "next") && /*#__PURE__*/React.createElement(Tag, {
     color: "purple"
-  }, "today")), i < 2 && /*#__PURE__*/React.createElement(Line, null))))), /*#__PURE__*/React.createElement("div", {
+  }, a.status === "today" ? "today" : "in " + a.daysTo + " days")), i < 2 && /*#__PURE__*/React.createElement(Line, null))))), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "grid",
       gridTemplateColumns: "minmax(0,1fr) minmax(0,1fr)",
@@ -1298,7 +1299,7 @@ function DetailAppointments({
       width: 9,
       height: 9,
       borderRadius: "50%",
-      background: a.status === "today" ? ACTIVE_C : T3,
+      background: (a.status === "today" || a.status === "next") ? ACTIVE_C : T3,
       marginTop: 4,
       flexShrink: 0
     }
@@ -1319,9 +1320,9 @@ function DetailAppointments({
       fontWeight: 500,
       color: T1
     }
-  }, a.date, " at ", a.time), a.status === "today" && /*#__PURE__*/React.createElement(Tag, {
+  }, a.date, " at ", a.time), (a.status === "today" || a.status === "next") && /*#__PURE__*/React.createElement(Tag, {
     color: "purple"
-  }, "today")), /*#__PURE__*/React.createElement(Txt, {
+  }, a.status === "today" ? "today" : "in " + a.daysTo + " days")), /*#__PURE__*/React.createElement(Txt, {
     muted: true
   }, a.who), /*#__PURE__*/React.createElement(Txt, {
     dim: true
