@@ -34,18 +34,18 @@ const DATA = {
     n: "~46",
     l: "days to surgery"
   }, {
-    n: "10–90°",
+    n: "10–100°",
     l: "current ROM"
   }, {
-    n: "5/10",
-    l: "sessions booked"
+    n: "4/10",
+    l: "sessions done"
   }],
   stage: {
-    sessionNum: 2,
+    sessionNum: 4,
     physio: "Oliver Wu",
     exercises: [{
       name: "Cycling",
-      schedule: "10 mins · low resistance"
+      schedule: "10 mins · low resistance · modify seat height"
     }, {
       name: "Heel slides",
       schedule: "Mobility · little and often"
@@ -53,20 +53,20 @@ const DATA = {
       name: "Static quad + lift",
       schedule: "Mobility · little and often"
     }, {
-      name: "Bear crawl stands (L foot)",
-      schedule: "10× mobility"
+      name: "Foam roll squats (add light weight)",
+      schedule: "3×10 · 4–5×/week"
     }, {
-      name: "Foam roll squats (L foot back)",
-      schedule: "3×10 daily · 2s hold"
+      name: "Banded knee extension",
+      schedule: "3×12 · 4–5×/week"
     }, {
-      name: "Wall heel (HS) holds",
-      schedule: "3×30s daily · 70% max"
+      name: "Partial lunge 50%",
+      schedule: "3×8 · 4–5×/week"
     }, {
-      name: "SL balance eyes-closed",
-      schedule: "3×30s daily"
+      name: "Staggered bridge (L foot closer back)",
+      schedule: "3×10 · 4–5×/week"
     }],
-    focus: ["Regain full extension — push to -5° (hyperextension)", "Regain full flexion — currently 90°, target 130°+", "Single-leg balance and proprioception training", "Cycling 10 mins daily for low-impact conditioning", "No brace needed — gait continuing to improve"],
-    notes: "Oliver (20 May, session 2): Great progress — flexion now 90°. New exercises added: cycling, bear crawl stands, single leg balance. Push extension to -5° and flexion to 130°+ before surgery."
+    focus: ["Regain full extension — push to -5° (hyperextension)", "Regain full flexion — currently 100°, target 130°+", "Single-leg balance and proprioception training", "Cycling 10 mins daily for low-impact conditioning", "No brace needed — gait continuing to improve"],
+    notes: "Oliver (27 May, session 3): Flexion now 100°. New programme: banded knee extensions, partial lunges, staggered bridges. Session 4 (29 May) done — exercise notes expected Monday."
   },
   clinical: {
     diagnosis: "Left knee ACL rupture + lateral meniscal tear",
@@ -131,7 +131,7 @@ const DATA = {
   rom: {
     flexion: {
       label: "Flexion",
-      current: 90,
+      current: 100,
       target: 130,
       start: 0,
       desc: false
