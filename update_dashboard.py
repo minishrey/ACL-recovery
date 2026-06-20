@@ -17,11 +17,15 @@ SURGERY_DATE = date(2026, 7, 15)   # placeholder: mid-July 2026
 # ── Appointment dates (update list when bookings change) ───────────────────────
 # Format: (date_obj, "Display string", "HH:MM AM/PM display")
 APPOINTMENTS = [
-    (date(2026, 5, 20), "Wed 20 May", "3:30 PM"),
-    (date(2026, 5, 27), "Wed 27 May", "11:00 AM"),
-    (date(2026, 5, 29), "Fri 29 May", "2:30 PM"),
-    (date(2026,  6,  1), "Mon 1 Jun",  "3:30 PM"),
-                 (date(2026, 6, 15), "Mon 15 Jun", "4:30 PM"),
+    (date(2026, 6,  1), "Mon 1 Jun",  "3:30 PM"),
+    (date(2026, 6, 15), "Mon 15 Jun", "4:30 PM"),
+    (date(2026, 7, 13), "Mon 13 Jul", "3:30 PM"),
+]
+
+# Non-physio (e.g. consultant) appointments — tracked separately since the
+# regex below keys off date/time/where, not a specific "who".
+OTHER_APPOINTMENTS = [
+    (date(2026, 6, 24), "Wed 24 Jun", "5:15 PM"),  # Punwar follow-up consultation
 ]
 
 # ── Calculate ──────────────────────────────────────────────────────────────────
@@ -32,9 +36,12 @@ days_to_surgery   = max(0, (SURGERY_DATE - today).days)
 # Format date as "23 May 2026" (no leading zero on day)
 today_str = today.strftime("%-d %b %Y")
 
+# Combine physio + other (e.g. consultant) appointments for status/next calc
+ALL_APPOINTMENTS = sorted(APPOINTMENTS + OTHER_APPOINTMENTS, key=lambda x: x[0])
+
 # Work out which appointment is next
 next_appt = None
-for appt_date, display, time in APPOINTMENTS:
+for appt_date, display, time in ALL_APPOINTMENTS:
     if appt_date >= today:
         next_appt = (appt_date, display, time)
         break
@@ -70,25 +77,25 @@ html = re.sub(
 
 # 4. Appointment statuses
 # For each appointment, set status based on whether it's past, next, or upcoming
-for appt_date, display, time in APPOINTMENTS:
+for appt_date, display, time in ALL_APPOINTMENTS:
     if appt_date < today:
         new_status = 'status: "done"'
         # Remove daysTo if present
         html = re.sub(
-            rf'(date: "{re.escape(display)}",\s*\n\s*time: "{re.escape(time)}",\s*\n\s*who: "Oliver Wu",\s*\n\s*where: "[^"]*",\s*\n\s*)status: "[^"]*"(?:,\s*\n\s*daysTo: \d+)?',
+            rf'(date: "{re.escape(display)}",\s*\n\s*time: "{re.escape(time)}",\s*\n\s*who: "[^"]*",\s*\n\s*where: "[^"]*",\s*\n\s*)status: "[^"]*"(?:,\s*\n\s*daysTo: \d+)?',
             rf'\g<1>status: "done"',
             html
         )
     elif next_appt and appt_date == next_appt[0]:
         days_to_next = (appt_date - today).days
         html = re.sub(
-            rf'(date: "{re.escape(display)}",\s*\n\s*time: "{re.escape(time)}",\s*\n\s*who: "Oliver Wu",\s*\n\s*where: "[^"]*",\s*\n\s*)status: "[^"]*"(?:,\s*\n\s*daysTo: \d+)?',
+            rf'(date: "{re.escape(display)}",\s*\n\s*time: "{re.escape(time)}",\s*\n\s*who: "[^"]*",\s*\n\s*where: "[^"]*",\s*\n\s*)status: "[^"]*"(?:,\s*\n\s*daysTo: \d+)?',
             rf'\g<1>status: "next",\n    daysTo: {days_to_next}',
             html
         )
     else:
         html = re.sub(
-            rf'(date: "{re.escape(display)}",\s*\n\s*time: "{re.escape(time)}",\s*\n\s*who: "Oliver Wu",\s*\n\s*where: "[^"]*",\s*\n\s*)status: "[^"]*"(?:,\s*\n\s*daysTo: \d+)?',
+            rf'(date: "{re.escape(display)}",\s*\n\s*time: "{re.escape(time)}",\s*\n\s*who: "[^"]*",\s*\n\s*where: "[^"]*",\s*\n\s*)status: "[^"]*"(?:,\s*\n\s*daysTo: \d+)?',
             rf'\g<1>status: "upcoming"',
             html
         )

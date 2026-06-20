@@ -37,54 +37,51 @@ const DATA = {
     n: "10–100°",
     l: "current ROM"
   }, {
-    n: "5/10",
+    n: "6/10",
     l: "sessions done"
   }],
   stage: {
-    sessionNum: 5,
+    sessionNum: 6,
     physio: "Oliver Wu",
     exercises: [{
-            name: "Cycling",
-                  schedule: "low resistance · seat lower to progress"
-                      }, {
-                            name: "Hack Squat Staggered (L leg back, 90°)",
-                                  schedule: "3×8 · Gym 2×/week"
-                                      }, {
-                                            name: "SL Leg Press (40kg)",
-                                                  schedule: "3×6 · Gym 2×/week"
-                                                      }, {
-                                                            name: "SL Bridge on Box",
-                                                                  schedule: "3×10 · Gym 2×/week"
-                                                                      }, {
-                                                                            name: "DL Calf Raise on Smith Machine",
+    name: "Cycling",
+    schedule: "10 mins · up resistance · Gym 2×/week"
+  }, {
+    name: "Hack Squat Staggered",
+    schedule: "3×8 · 1-2 reps off failure · Gym 2×/week"
+  }, {
+    name: "SL Leg Press",
+    schedule: "3×6 · 1 rep off failure · Gym 2×/week"
+  }, {
+    name: "SL Bridge on Box",
     schedule: "3×10 · Gym 2×/week"
   }, {
-    name: "SL Leg Extension 7.5",
-    schedule: "3×10 · Gym 2×/week · slow on lower"
+    name: "DL Calf Raise on Smith Machine",
+    schedule: "3×10 · aim top height/BW · Gym 2×/week"
   }, {
-    name: "Heel Slides",
-    schedule: "~10 · daily · little and often"
+    name: "SL Leg Extension",
+    schedule: "3×10 · to failure · Gym 2×/week"
+  }, {
+    name: "Bear Crawl Rocks",
+    schedule: "~10 · daily"
   }, {
     name: "Plank on Foam Roller + Leg Lifts",
     schedule: "~10 each leg · daily"
   }, {
-    name: "Banded Knee Extension (full)",
-    schedule: "~15 · daily"
+    name: "Plank",
+    schedule: "Core circuit"
   }, {
-    name: "Staggered Foam Roll Squat",
-    schedule: "3×10 · 3×/week"
+    name: "Side Plank w/ Thread the Needle",
+    schedule: "Core circuit"
   }, {
-    name: "Partial Lunge",
-    schedule: "3×10 · 3×/week"
+    name: "Side Plank Knees (leg lift)",
+    schedule: "Core circuit"
   }, {
-    name: "SL Calf Raise",
-    schedule: "3×10 · 3×/week"
-  }, {
-    name: "SL Bridge",
-    schedule: "3×10 · 3×/week"
+    name: "Russian Twists",
+    schedule: "Core circuit"
   }],
     focus: ["Regain full extension — push to -5° (hyperextension)", "Regain full flexion — currently 100°, target 130°+", "Single-leg balance and proprioception training", "Cycling 10 mins daily for low-impact conditioning", "No brace needed — gait continuing to improve"],
-    notes: "Oliver (27 May, session 3): Flexion now 100°. New programme: banded knee extensions, partial lunges, staggered bridges. Session 5 (1 Jun): updated gym programme sent by Oliver Wu — exercise notes expected Monday."
+    notes: "Oliver (27 May, session 3): Flexion now 100°. New programme: banded knee extensions, partial lunges, staggered bridges. Session 5 (1 Jun): updated gym programme. Session 6 (15 Jun): progressed programme — heel slides & banded extensions dropped, added Bear Crawl Rocks + core circuit (plank, side plank, Russian twists). Next: session 7, Mon 13 Jul. Follow-up with Mr Punwar booked for 24 Jun."
   },
   clinical: {
     diagnosis: "Left knee ACL rupture + lateral meniscal tear",
@@ -121,35 +118,30 @@ const DATA = {
     }]
   },
   appointments: [{
-    date: "Wed 20 May",
-    time: "3:30 PM",
-    who: "Oliver Wu",
-    where: "5BG, UBS 5 Broadgate EC2M 2QS, Level 1",
-    status: "done"
-  }, {
-    date: "Wed 27 May",
-    time: "11:00 AM",
-    who: "Oliver Wu",
-    where: "5BG, UBS 5 Broadgate EC2M 2QS, Level 1",
-    status: "done"
-  }, {
-    date: "Fri 29 May",
-    time: "2:30 PM",
-    who: "Oliver Wu",
-    where: "5BG, UBS 5 Broadgate EC2M 2QS, Level 1",
-    status: "done"
-  }, {
     date: "Mon 1 Jun",
     time: "3:30 PM",
     who: "Oliver Wu",
     where: "5BG, UBS 5 Broadgate EC2M 2QS, Level 1",
     status: "done"
-      }, {
-          date: "Mon 15 Jun",
-              time: "4:30 PM",
-                  who: "Oliver Wu",
-                      where: "5BG, UBS 5 Broadgate EC2M 2QS, Level 1",
-                          status: "done"
+  }, {
+    date: "Mon 15 Jun",
+    time: "4:30 PM",
+    who: "Oliver Wu",
+    where: "5BG, UBS 5 Broadgate EC2M 2QS, Level 1",
+    status: "done"
+  }, {
+    date: "Wed 24 Jun",
+    time: "5:15 PM",
+    who: "Mr Shahid Punwar",
+    where: "King Edward VII's Hospital, 5-10 Beaumont St W1G 6AA",
+    status: "next",
+    daysTo: 4
+  }, {
+    date: "Mon 13 Jul",
+    time: "3:30 PM",
+    who: "Oliver Wu",
+    where: "5BG, UBS 5 Broadgate EC2M 2QS, Level 1",
+    status: "upcoming"
   }],
   rom: {
     flexion: {
@@ -246,10 +238,10 @@ const DATA = {
     cat: "resource"
   }],
   reminders: [{
-    text: "Book follow-up with Mr Punwar",
-    detail: "~4 weeks from 13 May = book around 10 Jun. punwar.admin@lips.org.uk · +44 (0)20 8194 8541",
+    text: "Follow-up with Mr Punwar — booked",
+    detail: "Confirmed: Wed 24 Jun 2026, 5:15 PM, King Edward VII's Hospital. punwar.admin@lips.org.uk · +44 (0)20 8194 8541",
     pri: "high",
-    due: "~10 Jun 2026"
+    due: "24 Jun 2026"
   }, {
     text: "Confirm surgery date",
     detail: "Provisionally late June. Once confirmed, plan apartment, work cover, parents visit.",
@@ -579,7 +571,7 @@ function Timeline({
       position: "absolute",
       top: trackTop,
       left: activePct + "%",
-      width: "3.5%",
+      width: "7.5%",
       height: 5,
       background: ACTIVE_C,
       borderRadius: "0 3px 3px 0"
