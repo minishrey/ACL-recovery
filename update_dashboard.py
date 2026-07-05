@@ -11,13 +11,12 @@ from datetime import date, datetime
 
 # ── Fixed reference dates ──────────────────────────────────────────────────────
 INJURY_DATE  = date(2026, 4, 24)
-# Surgery date: update this line once confirmed with Mr Punwar
-SURGERY_DATE = date(2026, 7, 15)   # placeholder: mid-July 2026
+# Surgery date: confirmed with Punwar Admin (King Edward VII Hospital) on 2 Jul 2026
+SURGERY_DATE = date(2026, 9, 16)   # confirmed: 16 Sep 2026
 
 # ── Appointment dates (update list when bookings change) ───────────────────────
 # Format: (date_obj, "Display string", "HH:MM AM/PM display")
 APPOINTMENTS = [
-    (date(2026, 6,  1), "Mon 1 Jun",  "3:30 PM"),
     (date(2026, 6, 15), "Mon 15 Jun", "4:30 PM"),
     (date(2026, 7, 13), "Mon 13 Jul", "3:30 PM"),
 ]
@@ -26,6 +25,7 @@ APPOINTMENTS = [
 # regex below keys off date/time/where, not a specific "who".
 OTHER_APPOINTMENTS = [
     (date(2026, 6, 24), "Wed 24 Jun", "5:15 PM"),  # Punwar follow-up consultation
+    (date(2026, 9, 16), "Wed 16 Sep", "TBC"),      # ACL surgery, King Edward VII Hospital
 ]
 
 # ── Calculate ──────────────────────────────────────────────────────────────────

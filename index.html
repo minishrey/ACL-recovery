@@ -31,7 +31,7 @@ const DATA = {
     n: "72",
     l: "days since injury"
   }, {
-    n: "~10",
+    n: "~73",
     l: "days to surgery"
   }, {
     n: "10–100°",
@@ -88,7 +88,7 @@ const DATA = {
     mriDate: "~4 May 2026",
     consultDate: "13 May 2026",
     plan: "ACL reconstruction via hamstring tendon graft, keyhole incisions. Meniscus repaired in same operation. Smaller tears expected to heal naturally before surgery.",
-    surgeryTarget: "Late June / mid-July 2026",
+    surgeryTarget: "16 September 2026 (confirmed)",
     recovery: "~2 months (daily life) · 4 months (cycling/swimming) · 9 months (tennis) · 12 months (football)",
     policyRef: "King Edward VII’s Hospital / 961BCK",
     gp: "The Hoxton Surgery, 6 Rushton Street, London N1 5DR",
@@ -118,12 +118,6 @@ const DATA = {
     }]
   },
   appointments: [{
-    date: "Mon 1 Jun",
-    time: "3:30 PM",
-    who: "Oliver Wu",
-    where: "5BG, UBS 5 Broadgate EC2M 2QS, Level 1",
-    status: "done"
-  }, {
     date: "Mon 15 Jun",
     time: "4:30 PM",
     who: "Oliver Wu",
@@ -142,6 +136,12 @@ const DATA = {
     where: "5BG, UBS 5 Broadgate EC2M 2QS, Level 1",
     status: "next",
     daysTo: 8
+  }, {
+    date: "Wed 16 Sep",
+    time: "TBC",
+    who: "Surgery — Mr Shahid Punwar",
+    where: "King Edward VII's Hospital, 5-10 Beaumont St W1G 6AA",
+    status: "upcoming"
   }],
   rom: {
     flexion: {
@@ -182,23 +182,23 @@ const DATA = {
   }, {
     label: "Surgery",
     done: false,
-    when: "~mid Jul"
+    when: "16 Sep 2026"
   }, {
     label: "Return to daily activities",
     done: false,
-    when: "~Sep 26"
+    when: "~Nov 26"
   }, {
     label: "Cycling / swimming",
     done: false,
-    when: "~Nov 26"
+    when: "~Jan 27"
   }, {
     label: "Tennis",
     done: false,
-    when: "~Apr 27"
+    when: "~Jun 27"
   }, {
     label: "Football",
     done: false,
-    when: "~Jul 27"
+    when: "~Sep 27"
   }],
   links: [{
     label: "Book physio session",
@@ -238,20 +238,15 @@ const DATA = {
     cat: "resource"
   }],
   reminders: [{
-    text: "Follow-up with Mr Punwar — booked",
-    detail: "Confirmed: Wed 24 Jun 2026, 5:15 PM, King Edward VII's Hospital. punwar.admin@lips.org.uk · +44 (0)20 8194 8541",
+    text: "Provide authorisation code for surgery",
+    detail: "Surgery booked for 16 Sep 2026 at King Edward VII's Hospital (confirmed 2 Jul). Reply to Punwar Admin with authorisation code so hospital can proceed; they will contact you for pre-assessment nearer the date. punwar.admin@lips.org.uk · +44 (0)20 8194 8541",
     pri: "high",
-    due: "24 Jun 2026"
-  }, {
-    text: "Confirm surgery date",
-    detail: "Provisionally late June. Once confirmed, plan apartment, work cover, parents visit.",
-    pri: "high",
-    due: "after next physio"
+    due: "ASAP"
   }, {
     text: "Book service apartment for parents",
     detail: "~1 month around surgery. Near King Edward VII’s (5–10 Beaumont St W1G 6AA). Book ~6 wks pre-surgery.",
     pri: "medium",
-    due: "~6 wks pre-surgery"
+    due: "~early Aug 2026"
   }, {
     text: "Blood thinners if travelling",
     detail: "Required within 4–6 weeks post-surgery. Ask GP or Mr Punwar to prescribe.",
@@ -285,31 +280,31 @@ const DATA = {
   }, {
     label: "Surgery",
     emoji: "\u2702\uFE0F",
-    date: "~mid Jul",
+    date: "16 Sep",
     status: "projected",
     pos: 50
   }, {
     label: "Daily life",
     emoji: "\uD83D\uDEB6",
-    date: "~Sep 26",
+    date: "~Nov 26",
     status: "projected",
     pos: 62.5
   }, {
     label: "Cycling",
     emoji: "\uD83D\uDEB4",
-    date: "~Nov 26",
+    date: "~Jan 27",
     status: "projected",
     pos: 75
   }, {
     label: "Tennis",
     emoji: "\uD83C\uDFBE",
-    date: "~Apr 27",
+    date: "~Jun 27",
     status: "projected",
     pos: 87.5
   }, {
     label: "Football",
     emoji: "\u26BD",
-    date: "~Jul 27",
+    date: "~Sep 27",
     status: "projected",
     pos: 100
   }],
@@ -320,19 +315,19 @@ const DATA = {
     l: "May",
     p: 18
   }, {
-    l: "Jul",
+    l: "Sep",
     p: 50
   }, {
-    l: "Sep",
+    l: "Nov",
     p: 62.5
   }, {
-    l: "Nov",
+    l: "Jan '27",
     p: 75
   }, {
-    l: "Apr '27",
+    l: "Jun '27",
     p: 87.5
   }, {
-    l: "Jul '27",
+    l: "Sep '27",
     p: 100
   }],
   romHistory: [{
