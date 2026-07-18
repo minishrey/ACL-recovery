@@ -19,6 +19,7 @@ SURGERY_DATE = date(2026, 9, 16)   # confirmed: 16 Sep 2026
 APPOINTMENTS = [
     (date(2026, 6, 15), "Mon 15 Jun", "4:30 PM"),
     (date(2026, 7, 13), "Mon 13 Jul", "3:30 PM"),
+    (date(2026, 7, 17), "Fri 17 Jul", "12:00 PM"),
 ]
 
 # Non-physio (e.g. consultant) appointments — tracked separately since the

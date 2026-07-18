@@ -26,62 +26,53 @@ const {
 } = React;
 const SK = "acl_v3";
 const DATA = {
-  lastUpdated: "18 Jul 2026",
+  lastUpdated: "19 Jul 2026",
   stats: [{
-    n: "85",
+    n: "86",
     l: "days since injury"
   }, {
-    n: "~60",
+    n: "~59",
     l: "days to surgery"
   }, {
     n: "10–100°",
     l: "current ROM"
   }, {
-    n: "6/10",
+    n: "8/10",
     l: "sessions done"
   }],
   stage: {
-    sessionNum: 6,
+    sessionNum: 8,
     physio: "Oliver Wu",
     exercises: [{
-    name: "Cycling",
-    schedule: "10 mins · up resistance · Gym 2×/week"
-  }, {
-    name: "Hack Squat Staggered",
-    schedule: "3×8 · 1-2 reps off failure · Gym 2×/week"
+    name: "Squat",
+    schedule: "3×5-8 · 40kg · Gym 2×/week"
   }, {
     name: "SL Leg Press",
-    schedule: "3×6 · 1 rep off failure · Gym 2×/week"
+    schedule: "3×5-8 · 70-80kg, increase ROM/staggered as needed · Gym 2×/week"
   }, {
-    name: "SL Bridge on Box",
-    schedule: "3×10 · Gym 2×/week"
-  }, {
-    name: "DL Calf Raise on Smith Machine",
-    schedule: "3×10 · aim top height/BW · Gym 2×/week"
+    name: "RDL",
+    schedule: "3×8 · Gym 2×/week"
   }, {
     name: "SL Leg Extension",
     schedule: "3×10 · to failure · Gym 2×/week"
   }, {
-    name: "Bear Crawl Rocks",
-    schedule: "~10 · daily"
+    name: "SL Land",
+    schedule: "5× · 3 sets through · Gym 2×/week"
   }, {
-    name: "Plank on Foam Roller + Leg Lifts",
-    schedule: "~10 each leg · daily"
+    name: "DL Pogo",
+    schedule: "10-20× · focus on spring · 3 sets through · Gym 2×/week"
   }, {
-    name: "Plank",
-    schedule: "Core circuit"
+    name: "Single Leg Calf Raise",
+    schedule: "3×12 · weight in big toe, knee locked · HEP 2×/week"
   }, {
-    name: "Side Plank w/ Thread the Needle",
-    schedule: "Core circuit"
+    name: "Single Leg Sit-Stand",
+    schedule: "3×8-12 · control · HEP 2×/week"
   }, {
-    name: "Side Plank Knees (leg lift)",
-    schedule: "Core circuit"
-  }, {
-    name: "Russian Twists",
-    schedule: "Core circuit"
+    name: "Thumb Track Balance",
+    schedule: "3×5 · HEP 2×/week"
   }],
     focus: ["Regain full extension — push to -5° (hyperextension)", "Regain full flexion — currently 100°, target 130°+", "Single-leg balance and proprioception training", "Cycling 10 mins daily for low-impact conditioning", "No brace needed — gait continuing to improve"],
-    notes: "Oliver (27 May, session 3): Flexion now 100°. New programme: banded knee extensions, partial lunges, staggered bridges. Session 5 (1 Jun): updated gym programme. Session 6 (15 Jun): progressed programme — heel slides & banded extensions dropped, added Bear Crawl Rocks + core circuit (plank, side plank, Russian twists). Next: session 7, Mon 13 Jul. Follow-up with Mr Punwar booked for 24 Jun."
+    notes: "Oliver (27 May, session 3): Flexion now 100°. New programme: banded knee extensions, partial lunges, staggered bridges. Session 5 (1 Jun): updated gym programme. Session 6 (15 Jun): progressed programme — heel slides & banded extensions dropped, added Bear Crawl Rocks + core circuit (plank, side plank, Russian twists). Session 7 (13 Jul): gym testing session with Oliver. Session 8 (17 Jul): new programme — gym moved to Squat (40kg), SL Leg Press (70-80kg), RDL, SL Leg Extension, SL Land + DL Pogo; new home exercise programme (single leg calf raise, single leg sit-stand, thumb track balance). Follow-up with Mr Punwar booked for 24 Jun. Next physio session: TBC."
   },
   clinical: {
     diagnosis: "Left knee ACL rupture + lateral meniscal tear",
@@ -118,20 +109,14 @@ const DATA = {
     }]
   },
   appointments: [{
-    date: "Mon 15 Jun",
-    time: "4:30 PM",
+    date: "Mon 13 Jul",
+    time: "3:30 PM",
     who: "Oliver Wu",
     where: "5BG, UBS 5 Broadgate EC2M 2QS, Level 1",
     status: "done"
   }, {
-    date: "Wed 24 Jun",
-    time: "5:15 PM",
-    who: "Mr Shahid Punwar",
-    where: "King Edward VII's Hospital, 5-10 Beaumont St W1G 6AA",
-    status: "done"
-  }, {
-    date: "Mon 13 Jul",
-    time: "3:30 PM",
+    date: "Fri 17 Jul",
+    time: "12:00 PM",
     who: "Oliver Wu",
     where: "5BG, UBS 5 Broadgate EC2M 2QS, Level 1",
     status: "done"
@@ -141,7 +126,7 @@ const DATA = {
     who: "Surgery — Mr Shahid Punwar",
     where: "King Edward VII's Hospital, 5-10 Beaumont St W1G 6AA",
     status: "next",
-    daysTo: 60
+    daysTo: 59
   }],
   rom: {
     flexion: {
@@ -566,7 +551,7 @@ function Timeline({
       position: "absolute",
       top: trackTop,
       left: activePct + "%",
-      width: "7.5%",
+      width: "10%",
       height: 5,
       background: ACTIVE_C,
       borderRadius: "0 3px 3px 0"
