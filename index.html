@@ -37,21 +37,21 @@ const DATA = {
     n: "10–100°",
     l: "current ROM"
   }, {
-    n: "8/10",
+    n: "9/10",
     l: "sessions done"
   }],
   stage: {
-    sessionNum: 8,
+    sessionNum: 9,
     physio: "Oliver Wu",
     exercises: [{
     name: "Squat",
-    schedule: "3×5-8 · 40kg · Gym 2×/week"
+    schedule: "3×10 · 40kg (or Walking Lunges 10kg/side) · Gym 2×/week"
   }, {
     name: "SL Leg Press",
-    schedule: "3×5-8 · 70-80kg, increase ROM/staggered as needed · Gym 2×/week"
+    schedule: "3×6 · 80kg (or Walking Lunges 10kg/side) · Gym 2×/week"
   }, {
     name: "RDL",
-    schedule: "3×8 · Gym 2×/week"
+    schedule: "3×8 · or Nordics · Gym 2×/week"
   }, {
     name: "SL Leg Extension",
     schedule: "3×10 · to failure · Gym 2×/week"
@@ -60,19 +60,19 @@ const DATA = {
     schedule: "5× · 3 sets through · Gym 2×/week"
   }, {
     name: "DL Pogo",
-    schedule: "10-20× · focus on spring · 3 sets through · Gym 2×/week"
+    schedule: "10-20× · 3 sets through · Gym 2×/week"
   }, {
     name: "Single Leg Calf Raise",
-    schedule: "3×12 · weight in big toe, knee locked · HEP 2×/week"
+    schedule: "3×12 · add some weight · HEP 2×/week"
   }, {
     name: "Single Leg Sit-Stand",
-    schedule: "3×8-12 · control · HEP 2×/week"
+    schedule: "3×8-12 · tap and up, less glute · HEP 2×/week"
   }, {
     name: "Thumb Track Balance",
     schedule: "3×5 · HEP 2×/week"
   }],
     focus: ["Regain full extension — push to -5° (hyperextension)", "Regain full flexion — currently 100°, target 130°+", "Single-leg balance and proprioception training", "Cycling 10 mins daily for low-impact conditioning", "No brace needed — gait continuing to improve"],
-    notes: "Oliver (27 May, session 3): Flexion now 100°. New programme: banded knee extensions, partial lunges, staggered bridges. Session 5 (1 Jun): updated gym programme. Session 6 (15 Jun): progressed programme — heel slides & banded extensions dropped, added Bear Crawl Rocks + core circuit (plank, side plank, Russian twists). Session 7 (13 Jul): gym testing session with Oliver. Session 8 (17 Jul): new programme — gym moved to Squat (40kg), SL Leg Press (70-80kg), RDL, SL Leg Extension, SL Land + DL Pogo; new home exercise programme (single leg calf raise, single leg sit-stand, thumb track balance). Follow-up with Mr Punwar booked for 24 Jun. Next physio session: TBC."
+    notes: "Oliver (27 May, session 3): Flexion now 100°. New programme: banded knee extensions, partial lunges, staggered bridges. Session 5 (1 Jun): updated gym programme. Session 6 (15 Jun): progressed programme — heel slides & banded extensions dropped, added Bear Crawl Rocks + core circuit (plank, side plank, Russian twists). Session 7 (13 Jul): gym testing session with Oliver. Session 8 (17 Jul): new programme — gym moved to Squat (40kg), SL Leg Press (70-80kg), RDL, SL Leg Extension, SL Land + DL Pogo; new home exercise programme (single leg calf raise, single leg sit-stand, thumb track balance). Session 9 (29 Jul, in-clinic): progressed loads — Squat 3×10 (40kg) or walking lunges, SL Leg Press 3×6 (80kg) or walking lunges, RDL 3×8 or Nordics; HEP progressed with added weight on calf raises. Follow-up with Mr Punwar booked for 24 Jun. Next physio session: Fri 21 Aug."
   },
   clinical: {
     diagnosis: "Left knee ACL rupture + lateral meniscal tear",
@@ -109,24 +109,30 @@ const DATA = {
     }]
   },
   appointments: [{
-    date: "Mon 13 Jul",
-    time: "3:30 PM",
-    who: "Oliver Wu",
-    where: "5BG, UBS 5 Broadgate EC2M 2QS, Level 1",
-    status: "done"
-  }, {
     date: "Fri 17 Jul",
     time: "12:00 PM",
     who: "Oliver Wu",
     where: "5BG, UBS 5 Broadgate EC2M 2QS, Level 1",
     status: "done"
   }, {
+    date: "Wed 29 Jul",
+    time: "11:00 AM",
+    who: "Oliver Wu",
+    where: "5BG, UBS 5 Broadgate EC2M 2QS, Level 1",
+    status: "done"
+  }, {
+    date: "Fri 21 Aug",
+    time: "11:30 AM",
+    who: "Oliver Wu",
+    where: "5BG, UBS 5 Broadgate EC2M 2QS, Level 1",
+    status: "next",
+    daysTo: 20
+  }, {
     date: "Wed 16 Sep",
     time: "TBC",
     who: "Surgery — Mr Shahid Punwar",
     where: "King Edward VII's Hospital, 5-10 Beaumont St W1G 6AA",
-    status: "next",
-    daysTo: 46
+    status: "upcoming"
   }],
   rom: {
     flexion: {
@@ -551,7 +557,7 @@ function Timeline({
       position: "absolute",
       top: trackTop,
       left: activePct + "%",
-      width: "10%",
+      width: "11.25%",
       height: 5,
       background: ACTIVE_C,
       borderRadius: "0 3px 3px 0"

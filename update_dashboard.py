@@ -20,6 +20,8 @@ APPOINTMENTS = [
     (date(2026, 6, 15), "Mon 15 Jun", "4:30 PM"),
     (date(2026, 7, 13), "Mon 13 Jul", "3:30 PM"),
     (date(2026, 7, 17), "Fri 17 Jul", "12:00 PM"),
+    (date(2026, 7, 29), "Wed 29 Jul", "11:00 AM"),
+    (date(2026, 8, 21), "Fri 21 Aug", "11:30 AM"),
 ]
 
 # Non-physio (e.g. consultant) appointments — tracked separately since the
