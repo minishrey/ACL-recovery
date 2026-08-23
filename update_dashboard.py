@@ -22,12 +22,14 @@ APPOINTMENTS = [
     (date(2026, 7, 17), "Fri 17 Jul", "12:00 PM"),
     (date(2026, 7, 29), "Wed 29 Jul", "11:00 AM"),
     (date(2026, 8, 21), "Fri 21 Aug", "11:30 AM"),
+    (date(2026, 9, 11), "Fri 11 Sep", "9:30 AM"),
 ]
 
 # Non-physio (e.g. consultant) appointments — tracked separately since the
 # regex below keys off date/time/where, not a specific "who".
 OTHER_APPOINTMENTS = [
     (date(2026, 6, 24), "Wed 24 Jun", "5:15 PM"),  # Punwar follow-up consultation
+    (date(2026, 8, 26), "Wed 26 Aug", "3:45 PM"),  # Punwar follow-up consultation
     (date(2026, 9, 16), "Wed 16 Sep", "TBC"),      # ACL surgery, King Edward VII Hospital
 ]
 
